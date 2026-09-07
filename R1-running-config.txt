@@ -1,0 +1,80 @@
+!
+hostname R1
+!
+ip dhcp excluded-address 192.168.0.1 192.168.0.10
+ip dhcp excluded-address 192.168.0.129 192.168.0.139
+ip dhcp excluded-address 192.168.0.193 192.168.0.203
+ip dhcp excluded-address 192.168.0.225 192.168.0.234
+!
+ip dhcp pool Sales
+ network 192.168.0.0 255.255.255.128
+ default-router 192.168.0.1
+ dns-server 8.8.8.8
+!
+ip dhcp pool HR
+ network 192.168.0.128 255.255.255.192
+ default-router 192.168.0.129
+ dns-server 8.8.8.8
+!
+ip dhcp pool IT
+ network 192.168.0.192 255.255.255.224
+ default-router 192.168.0.193
+ dns-server 8.8.8.8
+!
+ip dhcp pool Server
+ network 192.168.0.224 255.255.255.224
+ default-router 192.168.0.225
+ dns-server 8.8.8.8
+!
+ip domain name company.local
+username admin privilege 15 secret <REDACTED>
+ip ssh version 2
+!
+interface FastEthernet0/0
+ no ip address
+!
+interface FastEthernet0/0.10
+ encapsulation dot1Q 10
+ ip address 192.168.0.1 255.255.255.128
+ ip access-group 101 in
+!
+interface FastEthernet0/0.20
+ encapsulation dot1Q 20
+ ip address 192.168.0.129 255.255.255.192
+!
+interface FastEthernet0/0.30
+ encapsulation dot1Q 30
+ ip address 192.168.0.193 255.255.255.224
+!
+interface FastEthernet0/0.40
+ encapsulation dot1Q 40
+ ip address 192.168.0.225 255.255.255.224
+!
+interface FastEthernet0/0.50
+ encapsulation dot1Q 50
+ ip address 192.168.1.1 255.255.255.240
+!
+interface FastEthernet0/0.99
+ encapsulation dot1Q 99 native
+!
+interface FastEthernet0/1
+ ip address 10.0.0.1 255.255.255.252
+!
+router ospf 1
+ router-id 1.1.1.1
+ passive-interface default
+ no passive-interface FastEthernet0/1
+ network 10.0.0.0 0.0.0.3 area 0
+ network 192.168.0.0 0.0.0.255 area 0
+ network 192.168.1.0 0.0.0.15 area 0
+!
+access-list 10 permit 192.168.0.192 0.0.0.31
+access-list 101 permit ip host 192.168.0.20 192.168.0.128 0.0.0.63
+access-list 101 deny ip 192.168.0.0 0.0.0.127 192.168.0.128 0.0.0.63
+access-list 101 permit ip any any
+!
+line vty 0 4
+ access-class 10 in
+ login local
+ transport input ssh
+!

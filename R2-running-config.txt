@@ -1,0 +1,24 @@
+!
+hostname R2
+!
+interface FastEthernet0/0
+ ip address 10.0.0.2 255.255.255.252
+!
+interface Serial0/0
+ description AREA1-LINK-TO-R3
+ ip address 10.0.0.5 255.255.255.252
+ clock rate 2000000
+!
+interface FastEthernet0/1
+ ip address 192.168.2.1 255.255.255.192
+!
+router ospf 1
+ router-id 2.2.2.2
+ area 0 range 192.168.0.0 255.255.255.0
+ passive-interface default
+ no passive-interface FastEthernet0/0
+ no passive-interface Serial0/0
+ network 10.0.0.0 0.0.0.3 area 0
+ network 10.0.0.4 0.0.0.3 area 1
+ network 192.168.2.0 0.0.0.63 area 0
+!
